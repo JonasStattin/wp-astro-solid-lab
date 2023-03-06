@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPageBySlug, getAllPages } from '../lib/api.js';
+import Calculator from '../components/Calculator';
+
+const { slug } = Astro.params;
+const data = await getPageBySlug(slug);
+const { title, content, blocks } = data
+
+export async function getStaticPaths() {
+  const data = await getAllPages();
+  const pages = data.edges.map((edge) => edge.node);
+  return pages.map(({ slug }) => {
+    return {
+      params: { slug },
+    };
+  });
+}
+---
+<BaseLayout>
+  <a href="/">Home</a>
+  <h1>{title}</h1>
+  {
+    blocks.map((block) => {
+      if (block.name === 'lazyblock/calculator') {
+        return (<Calculator name="Calculon" client:load />)
+      }
+      return (
+        <Fragment set:html={block.originalContent} />
+      )
+    })
+  }
+</BaseLayout>

@@ -1,0 +1,44 @@
+version: '0' # Deprecated
+
+services:
+  db:
+    image: mariadb
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    volumes:
+      - wordpress_data:/var/www/html
+    ports:
+      - 8000:80
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+
+  frontend:
+    container_name: wp_astro_frontend
+    links:
+      - wordpress
+    build: .
+    ports:
+      - 3000:3000
+    command: 'npm run dev -- --host 0.0.0.0' # Expose the port to the host
+    environment:
+      - WP_URL=http://wordpress:80/graphql # Port is internal to the container
+    volumes: # Bind mount a volume
+      - ./:/usr/app
+volumes:
+  db_data: {}
+  wordpress_data: {}

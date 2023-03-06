@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getAllPages } from '../lib/api'
+
+const data = await getAllPages();
+const pages = data.edges.map((edge) => edge.node);
+---
+<BaseLayout>
+  <h1>Astro + WP</h1>
+  {
+    pages.map(({ title, slug }) => {
+      return (
+        <div>
+          <h2>{title}</h2>
+          <a href={slug}>Read more</a>
+        </div>
+      )
+    })
+  }
+</BaseLayout>
